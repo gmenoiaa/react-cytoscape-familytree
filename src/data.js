@@ -133,8 +133,8 @@ export function buildData(maxLevels = 2) {
         }
 
         for (let i = 0; i < 2; i++) {
-            const child = createPerson({ gender: 'female', ownUnions: [], parentUnion: uid })
-            const childPartner = createPerson({ gender: 'male' })
+            const child = createPerson({ gender: 'male', ownUnions: [], parentUnion: uid })
+            const childPartner = createPerson({ gender: 'female' })
             createFamily(child, childPartner, level + 1)
         }
     }

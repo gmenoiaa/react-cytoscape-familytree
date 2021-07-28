@@ -3,10 +3,11 @@ import CytoscapeComponent from 'react-cytoscapejs/src/component'
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import {buildData} from './data'
+import {useEffect, useState} from 'react'
 
 cytoscape.use(dagre)
 
-const data = buildData(8)
+const data = buildData(3)
 const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' } }))
 const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
 const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
@@ -14,18 +15,28 @@ const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}
 console.log('persons count', persons.length)
 
 function App() {
+  const [cy, setCy] = useState()
+
   const layout = {
     name: 'dagre',
     fit: false,
-    // ranker: 'longest-path'
-    minLen: (edge) => {
-      const { id } = edge._private.data
-      return id.startsWith('id') ? 0 : 1
-    },
-    // edgeWeight: (edge) => {
-    //   const { id } = edge._private.data
-    //   return id.startsWith('id') ? 100 : 1
-    // }
+    ready: event => {
+      const elements = event.cy.elements()
+      const unions = elements.filter(element => element.data().type === 'union' && element.isNode())
+
+      for (const union of unions) {
+        // make the union point at the same y position as the nodes
+        const firstIncomingNode = union.incomers().find(element => element.isNode())
+        union.position('y', firstIncomingNode.position('y'))
+
+        // const outgoingEdges = union.outgoers().filter(element => element.isEdge())
+        //
+        // for (const edge of outgoingEdges) {
+        //   console.log(edge.sourceEndpoint())
+        // }
+      }
+
+    }
   }
 
   const style = [
@@ -43,13 +54,13 @@ function App() {
     {
       selector: 'node[gender = "male"]',
       style: {
-        'background-color': 'blue',
+        'background-color': '#ade1ff',
       }
     },
     {
       selector: 'node[gender = "female"]',
       style: {
-        'background-color': 'red',
+        'background-color': '#f3c2c2',
       }
     },
     {
@@ -63,14 +74,12 @@ function App() {
       css: {
         'text-valign': 'top',
         'text-halign': 'center',
-        // 'background-color': '#fff',
-        // 'border-color': '#fff',
       }
     },
     {
       selector: 'edge',
       style: {
-        'curve-style': 'bezier'
+        'curve-style': 'taxi',
       }
     }
   ]
@@ -83,8 +92,22 @@ function App() {
     edges
   })
 
+  useEffect(() => {
+    if (!cy) {
+      return
+    }
+
+    cy.fit()
+  }, [cy])
+
   return (
-    <CytoscapeComponent className="App" elements={elements} stylesheet={style} layout={layout} />
+    <CytoscapeComponent
+      className="App"
+      cy={cy => setCy(cy)}
+      elements={elements}
+      stylesheet={style}
+      layout={layout}
+    />
   );
 }
 
