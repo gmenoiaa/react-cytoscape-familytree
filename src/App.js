@@ -80,6 +80,7 @@ function App() {
       selector: 'edge',
       style: {
         'curve-style': 'taxi',
+        'taxi-direction': 'vertical',
       }
     }
   ]
