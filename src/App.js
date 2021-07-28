@@ -6,10 +6,12 @@ import {buildData} from './data'
 
 cytoscape.use(dagre)
 
-const data = buildData(3)
+const data = buildData(8)
 const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' } }))
 const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
 const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
+
+console.log('persons count', persons.length)
 
 function App() {
   const layout = {
@@ -68,7 +70,7 @@ function App() {
     {
       selector: 'edge',
       style: {
-        // 'curve-style': 'taxi'
+        'curve-style': 'bezier'
       }
     }
   ]
