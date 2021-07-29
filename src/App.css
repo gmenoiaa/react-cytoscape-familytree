@@ -2,3 +2,50 @@
   width: 100vw;
   height: 100vh;
 }
+
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 2px solid #000;
+  width: 140px;
+  height: 40px;
+}
+
+.card.male {
+  background-color: #0073ac;
+}
+
+.card.female {
+  background-color: #22706d;
+}
+
+.card__image {
+  flex: 1;
+  width: 30px;
+  height: 40px;
+}
+
+.card__image img {
+  width: 100%;
+  height: 100%;
+}
+
+.card__details {
+  flex: 2;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.card__details__name {
+  display: block;
+  font-weight: bold;
+}
+
+.card__details__birth {
+  display: block;
+  font-size: 10px;
+}
