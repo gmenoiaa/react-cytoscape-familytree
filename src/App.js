@@ -12,15 +12,26 @@ if (typeof cytoscape('core', 'nodeHtmlLabel') === 'undefined') {
   nodeHtmlLabel(cytoscape);
 }
 
-const data = buildData(3)
-const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'l1' }))
-const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
-const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
+function prepareData(levels = 3) {
+  const data = buildData(levels)
 
-console.log('persons count', persons.length)
+  const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'l1' }))
+  const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
+  const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
+
+  return {
+    nodes: [
+      ...persons,
+      ...unions,
+    ],
+    edges
+  }
+}
 
 function App() {
+  // const location = useLocation();
   const [cy, setCy] = useState()
+  const [elements, setElements] = useState({})
 
   const layout = {
     name: 'dagre',
@@ -39,7 +50,6 @@ function App() {
         for (const incomingNode of incomingNodes) {
           const nodeX = incomingNode.position('x')
           if (Math.abs(nodeX - unionX) > 200) {
-            console.log(incomingNode.data(), nodeX, unionX)
             incomingNode.position('x', unionX + (nodeX > unionX ? 100 : -100))
           }
         }
@@ -84,16 +94,6 @@ function App() {
     }
   ]
 
-  const elements = CytoscapeComponent.normalizeElements({
-    nodes: [
-      ...persons,
-      ...unions,
-    ],
-    edges
-  })
-
-  // const elements = CytoscapeComponent.normalizeElements(oldData)
-
   useEffect(() => {
     if (!cy) {
       return
@@ -123,11 +123,18 @@ function App() {
     cy.fit()
   }, [cy])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const level = Number(params.get('level'))
+    const data = prepareData(level ? level : 3)
+    setElements(data)
+  }, [])
+
   return (
     <CytoscapeComponent
       className="App"
       cy={cy => setCy(cy)}
-      elements={elements}
+      elements={CytoscapeComponent.normalizeElements(elements)}
       stylesheet={style}
       layout={layout}
     />
