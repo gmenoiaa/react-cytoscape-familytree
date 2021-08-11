@@ -16,9 +16,9 @@ if (typeof cytoscape('core', 'nodeHtmlLabel') === 'undefined') {
 function prepareData(levels = 3) {
   const data = buildData(levels)
 
-  const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'l1' }))
+  const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'node--person' }))
   const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
-  const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
+  const edges = data.links.map(([src, trg]) => ({ data: { id: `${src}-${trg}`, source: src, target: trg } }))
 
   let nodes = {
     nodes: [
@@ -27,8 +27,6 @@ function prepareData(levels = 3) {
     ],
     edges
   }
-
-  console.log("Nodes Data:", nodes)
 
   return nodes
 }
@@ -99,12 +97,29 @@ function App() {
         'text-halign': 'center',
       }
     },
+
+    // TODO: introduce edge-marriage (straight lines instead of taxi)
     {
       selector: 'edge',
       style: {
         'curve-style': 'taxi',
         'taxi-direction': 'vertical',
         'line-color': `${stylesConfig.edgeColor}`,
+        'width': `${stylesConfig.edgeWidth}`,
+        // 'edge-distances': 'node-position',
+        // 'source-endpoint': '0deg',
+        // 'target-endpoint': '50%',
+      }
+    },
+
+    // Edge: Divorced
+    {
+      selector: 'edge.edge--divorced',
+      style: {
+        'curve-style': 'taxi',
+        'taxi-direction': 'vertical',
+        'line-color': `${stylesConfig.edgeColor}`,
+        'line-style': 'dashed',
         'width': `${stylesConfig.edgeWidth}`,
         // 'edge-distances': 'node-position',
         // 'source-endpoint': '0deg',
@@ -120,7 +135,7 @@ function App() {
 
     cy.nodeHtmlLabel([
       {
-        query: '.l1',
+        query: '.node--person',
         halign: "center",
         valign: "center",
         halignBox: "center",
@@ -147,7 +162,23 @@ function App() {
     const level = Number(params.get('level'))
 
     // const data = prepareData(level ? level : 3)
-    const data = oldData
+    let data = oldData
+
+    // adding proper classes for person nodes
+    data.nodes
+      .filter((node) => { return node.data.type === 'person' })
+      .forEach((node) => { node.classes = "node--person" })
+
+    // adding proper classes for "divorced" relationships
+    let divorceUnions = data.nodes.filter((node) => {
+      return node.data.type === 'union' && node.data.divorced !== undefined && node.data.divorced
+    })
+
+    divorceUnions.forEach((union) => {
+      data.edges
+        .filter((edge) => { return edge.data.target === union.data.id })
+        .forEach((edge) => { edge.classes = "edge--divorced"})
+    })
 
     setElements(data)
   }, [])

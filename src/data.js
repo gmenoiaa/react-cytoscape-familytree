@@ -154,24 +154,24 @@ export function buildData(maxLevels = 2) {
 
 export const oldData = {
     nodes: [
-        { data: { id: 'id1', name: 'Francis', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id2', name: 'Greta', type: 'person', gender: 'female' }, classes: 'l1' },
-        { data: { id: 'id3', name: 'Eric', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id4', name: 'Charlene', type: 'person', gender: 'female' }, classes: 'l1' },
-        { data: { id: 'id5', name: 'Iver', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id6', name: 'Dan', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id7', name: 'Klaus', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id8', name: 'Heinz', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id9', name: 'Jennifer', type: 'person', gender: 'female' }, classes: 'l1' },
-        { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id11', name: 'Adam', type: 'person', gender: 'male' }, classes: 'l1' },
-        { data: { id: 'id12', name: 'Berta', type: 'person', gender: 'female' }, classes: 'l1' },
+        { data: { id: 'id1', name: 'Francis', type: 'person', gender: 'male' } },
+        { data: { id: 'id2', name: 'Greta', type: 'person', gender: 'female' } },
+        { data: { id: 'id3', name: 'Eric', type: 'person', gender: 'male' } },
+        { data: { id: 'id4', name: 'Charlene', type: 'person', gender: 'female' } },
+        { data: { id: 'id5', name: 'Iver', type: 'person', gender: 'male' } },
+        { data: { id: 'id6', name: 'Dan', type: 'person', gender: 'male' } },
+        { data: { id: 'id7', name: 'Klaus', type: 'person', gender: 'male' } },
+        { data: { id: 'id8', name: 'Heinz', type: 'person', gender: 'male' } },
+        { data: { id: 'id9', name: 'Jennifer', type: 'person', gender: 'female' } },
+        { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' } },
+        { data: { id: 'id11', name: 'Adam', type: 'person', gender: 'male' } },
+        { data: { id: 'id12', name: 'Berta', type: 'person', gender: 'female' } },
 
         { data: { id: 'u1', type: 'union' } },
         { data: { id: 'u2', type: 'union' } },
         { data: { id: 'u3', type: 'union' } },
-        { data: { id: 'u4', type: 'union' } },
-        { data: { id: 'u5', type: 'union' } },
+        { data: { id: 'u4', type: 'union', divorced: true } },
+        { data: { id: 'u5', type: 'union', divorced: true } },
     ],
     edges: [
         // Francis + Greta > Kids: Eric
@@ -187,14 +187,14 @@ export const oldData = {
         { data: { id: 'u5-id7', source: 'u5', target: 'id7' } },
 
         //  Charlene + Eric > Kids: Heinz
-        { data: { id: 'id3-u2', source: 'id3', target: 'u2' } },
-        { data: { id: 'id4-u2', source: 'id4', target: 'u2' } },
-        { data: { id: 'u2-id8', source: 'u2', target: 'id8' } },
+        { data: { id: 'id3-u2', source: 'id3', target: 'u2' } },    // Eric
+        { data: { id: 'id4-u2', source: 'id4', target: 'u2' } },    // Charlene
+        { data: { id: 'u2-id8', source: 'u2', target: 'id8' } },    // Heinz
 
         // Charlene + Iver > Kids: Jennifer
-        { data: { id: 'id4-u4', source: 'id4', target: 'u4' } },
-        { data: { id: 'id5-u4', source: 'id5', target: 'u4' } },
-        { data: { id: 'u4-id9', source: 'u4', target: 'id9' } },
+        { data: { id: 'id4-u4', source: 'id4', target: 'u4' } },    // Charlene
+        { data: { id: 'id5-u4', source: 'id5', target: 'u4' } },    // Iver
+        { data: { id: 'u4-id9', source: 'u4', target: 'id9' } },    // Jennifer
 
         // Heinz > Kids: Lennart (Heinz - missing wife)
         { data: { id: 'id8-u3', source: 'id8', target: 'u3' } },
