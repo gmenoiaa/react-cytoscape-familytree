@@ -4,6 +4,7 @@ import cytoscape from 'cytoscape'
 import nodeHtmlLabel from 'cytoscape-node-html-label'
 import dagre from 'cytoscape-dagre'
 import {buildData} from './data'
+import {oldData} from './data'
 import './App.css';
 
 cytoscape.use(dagre)
@@ -19,13 +20,17 @@ function prepareData(levels = 3) {
   const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
   const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
 
-  return {
+  let nodes = {
     nodes: [
       ...persons,
       ...unions,
     ],
     edges
   }
+
+  console.log("Nodes Data:", nodes)
+
+  return nodes
 }
 
 function App() {
@@ -36,6 +41,7 @@ function App() {
   const layout = {
     name: 'dagre',
     fit: false,
+    zoom: 1,
     ready: event => {
       const elements = event.cy.elements()
       const unions = elements.filter(element => element.data().type === 'union' && element.isNode())
@@ -43,7 +49,8 @@ function App() {
       for (const union of unions) {
         // make the union point at the same y position as the nodes
         const incomingNodes = union.incomers().filter(element => element.isNode())
-        union.position('y', incomingNodes[0].position('y'))
+        union.shift({x : 0, y : (incomingNodes[0].position('y') - union.position('y'))})
+        // union.position('y', incomingNodes[0].position('y'))
 
         // adjust how far partners are from union node
         const unionX = union.position('x')
@@ -59,6 +66,11 @@ function App() {
     }
   }
 
+  const stylesConfig = {
+    edgeColor: '#666',
+    edgeWidth: 1
+  }
+
   const style = [
     {
       selector: 'node[type = "person"]',
@@ -69,13 +81,15 @@ function App() {
         'shape': 'rectangle',
         'width': 150,
         'height': 50,
-        'background-color': '#fff'
+        'background-color': '#fff',
       }
     },
     {
       selector: 'node[type = "union"]',
       style: {
-        'background-color': '#eee',
+        'background-color': `${stylesConfig.edgeColor}`,
+        'width': 10,
+        'height': 10,
       }
     },
     {
@@ -90,6 +104,11 @@ function App() {
       style: {
         'curve-style': 'taxi',
         'taxi-direction': 'vertical',
+        'line-color': `${stylesConfig.edgeColor}`,
+        'width': `${stylesConfig.edgeWidth}`,
+        // 'edge-distances': 'node-position',
+        // 'source-endpoint': '0deg',
+        // 'target-endpoint': '50%',
       }
     }
   ]
@@ -126,7 +145,10 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const level = Number(params.get('level'))
-    const data = prepareData(level ? level : 3)
+
+    // const data = prepareData(level ? level : 3)
+    const data = oldData
+
     setElements(data)
   }, [])
 
@@ -138,6 +160,12 @@ function App() {
       stylesheet={style}
       layout={layout}
     />
+
+    // minZoom={0.5}
+    // maxZoom={3.0}
+    // autolock={true}
+    // autoungrabify={true}
+    // boxSelectionEnabled={false}
   );
 }
 
