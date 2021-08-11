@@ -38,7 +38,7 @@ function App() {
 
   const layout = {
     name: 'dagre',
-    fit: false,
+    fit: true,
     zoom: 1,
     ready: event => {
       const elements = event.cy.elements()
@@ -46,9 +46,15 @@ function App() {
 
       for (const union of unions) {
         // make the union point at the same y position as the nodes
-        const incomingNodes = union.incomers().filter(element => element.isNode())
-        union.shift({x : 0, y : (incomingNodes[0].position('y') - union.position('y'))})
-        // union.position('y', incomingNodes[0].position('y'))
+        const incomingNodes = union.incomers().filter(element => element.isNode() && element.data.target === union.data.id)
+
+        if (incomingNodes.length > 1) {
+          union.shift({x : 0, y : (incomingNodes[0].position('y') - union.position('y'))})
+          // union.position('y', incomingNodes[0].position('y'))
+        } else {
+          // TODO: think about hiding the union node in this case (because it means there are some kids linking to the union node, but there's only one "person" node in the graph)
+          // TODO: do we even allow single parents ? or maybe we add support for placeholder nodes for the spouse in this case
+        }
 
         // adjust how far partners are from union node
         const unionX = union.position('x')
