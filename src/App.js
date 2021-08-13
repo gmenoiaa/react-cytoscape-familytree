@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 import {useEffect, useState} from 'react'
 import CytoscapeComponent from 'react-cytoscapejs/src/component'
 import cytoscape from 'cytoscape'
 import nodeHtmlLabel from 'cytoscape-node-html-label'
 import dagre from 'cytoscape-dagre'
 import {buildData} from './data'
+import {oldData} from './data'
 import './App.css';
 
 cytoscape.use(dagre)
@@ -15,17 +17,19 @@ if (typeof cytoscape('core', 'nodeHtmlLabel') === 'undefined') {
 function prepareData(levels = 3) {
   const data = buildData(levels)
 
-  const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'l1' }))
+  const persons = Object.entries(data.persons).map(([id, person]) => ({ data: { id: id, name: person.name, gender: person.gender, type: 'person' }, classes: 'node--person' }))
   const unions = Object.keys(data.unions).map(id => ({ data: { id, type: 'union' } }))
-  const edges = data.links.map(([left, right]) => ({ data: { id: `${left}-${right}`, source: left, target: right } }))
+  const edges = data.links.map(([src, trg]) => ({ data: { id: `${src}-${trg}`, source: src, target: trg } }))
 
-  return {
+  let nodes = {
     nodes: [
       ...persons,
       ...unions,
     ],
     edges
   }
+
+  return nodes
 }
 
 function App() {
@@ -35,15 +39,23 @@ function App() {
 
   const layout = {
     name: 'dagre',
-    fit: false,
+    fit: true,
+    zoom: 1,
     ready: event => {
       const elements = event.cy.elements()
       const unions = elements.filter(element => element.data().type === 'union' && element.isNode())
 
       for (const union of unions) {
         // make the union point at the same y position as the nodes
-        const incomingNodes = union.incomers().filter(element => element.isNode())
-        union.position('y', incomingNodes[0].position('y'))
+        const incomingNodes = union.incomers().filter(element => element.isNode() && element.data.target === union.data.id)
+
+        if (incomingNodes.length > 1) {
+          union.shift({x : 0, y : (incomingNodes[0].position('y') - union.position('y'))})
+          // union.position('y', incomingNodes[0].position('y'))
+        } else {
+          // TODO: think about hiding the union node in this case (because it means there are some kids linking to the union node, but there's only one "person" node in the graph)
+          // TODO: do we even allow single parents ? or maybe we add support for placeholder nodes for the spouse in this case
+        }
 
         // adjust how far partners are from union node
         const unionX = union.position('x')
@@ -59,6 +71,11 @@ function App() {
     }
   }
 
+  const stylesConfig = {
+    edgeColor: '#666',
+    edgeWidth: 1
+  }
+
   const style = [
     {
       selector: 'node[type = "person"]',
@@ -69,13 +86,15 @@ function App() {
         'shape': 'rectangle',
         'width': 150,
         'height': 50,
-        'background-color': '#fff'
+        'background-color': '#fff',
       }
     },
     {
       selector: 'node[type = "union"]',
       style: {
-        'background-color': '#eee',
+        'background-color': `${stylesConfig.edgeColor}`,
+        'width': 10,
+        'height': 10,
       }
     },
     {
@@ -85,11 +104,33 @@ function App() {
         'text-halign': 'center',
       }
     },
+
+    // TODO: introduce edge-marriage (straight lines instead of taxi)
     {
       selector: 'edge',
       style: {
         'curve-style': 'taxi',
         'taxi-direction': 'vertical',
+        'line-color': `${stylesConfig.edgeColor}`,
+        'width': `${stylesConfig.edgeWidth}`,
+        // 'edge-distances': 'node-position',
+        // 'source-endpoint': '0deg',
+        // 'target-endpoint': '50%',
+      }
+    },
+
+    // Edge: Divorced
+    {
+      selector: 'edge.edge--divorced',
+      style: {
+        'curve-style': 'taxi',
+        'taxi-direction': 'vertical',
+        'line-color': `${stylesConfig.edgeColor}`,
+        'line-style': 'dashed',
+        'width': `${stylesConfig.edgeWidth}`,
+        // 'edge-distances': 'node-position',
+        // 'source-endpoint': '0deg',
+        // 'target-endpoint': '50%',
       }
     }
   ]
@@ -101,7 +142,7 @@ function App() {
 
     cy.nodeHtmlLabel([
       {
-        query: '.l1',
+        query: '.node--person',
         halign: "center",
         valign: "center",
         halignBox: "center",
@@ -126,7 +167,26 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const level = Number(params.get('level'))
-    const data = prepareData(level ? level : 3)
+
+    // const data = prepareData(level ? level : 3)
+    let data = oldData
+
+    // adding proper classes for person nodes
+    data.nodes
+      .filter((node) => { return node.data.type === 'person' })
+      .forEach((node) => { node.classes = "node--person" })
+
+    // adding proper classes for "divorced" relationships
+    let divorceUnions = data.nodes.filter((node) => {
+      return node.data.type === 'union' && node.data.divorced !== undefined && node.data.divorced
+    })
+
+    divorceUnions.forEach((union) => {
+      data.edges
+        .filter((edge) => { return edge.data.target === union.data.id })
+        .forEach((edge) => { edge.classes = "edge--divorced"})
+    })
+
     setElements(data)
   }, [])
 
@@ -137,6 +197,10 @@ function App() {
       elements={CytoscapeComponent.normalizeElements(elements)}
       stylesheet={style}
       layout={layout}
+      // minZoom={0.5}
+      // maxZoom={3.0}
+      // autoungrabify={true}
+      // boxSelectionEnabled={false}
     />
   );
 }

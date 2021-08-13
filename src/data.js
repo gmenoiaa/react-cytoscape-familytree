@@ -163,36 +163,41 @@ export const oldData = {
         { data: { id: 'id7', name: 'Klaus', type: 'person', gender: 'male' } },
         { data: { id: 'id8', name: 'Heinz', type: 'person', gender: 'male' } },
         { data: { id: 'id9', name: 'Jennifer', type: 'person', gender: 'female' } },
-        { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' } },
+        // { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' } },
         { data: { id: 'id11', name: 'Adam', type: 'person', gender: 'male' } },
         { data: { id: 'id12', name: 'Berta', type: 'person', gender: 'female' } },
 
         { data: { id: 'u1', type: 'union' } },
         { data: { id: 'u2', type: 'union' } },
-        { data: { id: 'u3', type: 'union' } },
-        { data: { id: 'u4', type: 'union' } },
-        { data: { id: 'u5', type: 'union' } },
+        // { data: { id: 'u3', type: 'union' } },
+        { data: { id: 'u4', type: 'union', divorced: true } },
+        { data: { id: 'u5', type: 'union', divorced: true } },
     ],
-      edges: [
-    { data: { id: 'id1-u1', source: 'id1', target: 'u1' } },
-    { data: { id: 'id2-u1', source: 'id2', target: 'u1' } },
-    { data: { id: 'u1-id3', source: 'u1', target: 'id3' } },
+    edges: [
+        // Francis + Greta > Kids: Eric
+        { data: { id: 'id1-u1', source: 'id1', target: 'u1' } },
+        { data: { id: 'id2-u1', source: 'id2', target: 'u1' } },
+        { data: { id: 'u1-id3', source: 'u1', target: 'id3' } },
 
-    { data: { id: 'id3-u2', source: 'id3', target: 'u2' } },
-    { data: { id: 'id4-u2', source: 'id4', target: 'u2' } },
-    { data: { id: 'u2-id8', source: 'u2', target: 'id8' } },
+        // Adam + Berta > Kids: Charlene / Dan / Klaus
+        { data: { id: 'id11-u5', source: 'id11', target: 'u5' } },
+        { data: { id: 'id12-u5', source: 'id12', target: 'u5' } },
+        { data: { id: 'u5-id4', source: 'u5', target: 'id4' } },
+        { data: { id: 'u5-id6', source: 'u5', target: 'id6' } },
+        { data: { id: 'u5-id7', source: 'u5', target: 'id7' } },
 
-    { data: { id: 'id8-u3', source: 'id8', target: 'u3' } },
-    { data: { id: 'u3-id10', source: 'u3', target: 'id10' } },
+        //  Charlene + Eric > Kids: Heinz
+        { data: { id: 'id3-u2', source: 'id3', target: 'u2' } },    // Eric
+        { data: { id: 'id4-u2', source: 'id4', target: 'u2' } },    // Charlene
+        { data: { id: 'u2-id8', source: 'u2', target: 'id8' } },    // Heinz
 
-    { data: { id: 'id4-u4', source: 'id4', target: 'u4' } },
-    { data: { id: 'id5-u4', source: 'id5', target: 'u4' } },
-    { data: { id: 'u4-id9', source: 'u4', target: 'id9' } },
+        // Charlene + Iver > Kids: Jennifer
+        { data: { id: 'id4-u4', source: 'id4', target: 'u4' } },    // Charlene
+        { data: { id: 'id5-u4', source: 'id5', target: 'u4' } },    // Iver
+        { data: { id: 'u4-id9', source: 'u4', target: 'id9' } },    // Jennifer
 
-    { data: { id: 'id11-u5', source: 'id11', target: 'u5' } },
-    { data: { id: 'id12-u5', source: 'id12', target: 'u5' } },
-    { data: { id: 'u5-id4', source: 'u5', target: 'id4' } },
-    { data: { id: 'u5-id6', source: 'u5', target: 'id6' } },
-    { data: { id: 'u5-id7', source: 'u5', target: 'id7' } },
-]
+        // Heinz > Kids: Lennart (Heinz - missing wife)
+        // { data: { id: 'id8-u3', source: 'id8', target: 'u3' } },
+        // { data: { id: 'u3-id10', source: 'u3', target: 'id10' } },
+    ]
 }
