@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {useEffect, useState} from 'react'
 import CytoscapeComponent from 'react-cytoscapejs/src/component'
 import cytoscape from 'cytoscape'
@@ -196,13 +197,11 @@ function App() {
       elements={CytoscapeComponent.normalizeElements(elements)}
       stylesheet={style}
       layout={layout}
+      // minZoom={0.5}
+      // maxZoom={3.0}
+      // autoungrabify={true}
+      // boxSelectionEnabled={false}
     />
-
-    // minZoom={0.5}
-    // maxZoom={3.0}
-    // autolock={true}
-    // autoungrabify={true}
-    // boxSelectionEnabled={false}
   );
 }
 

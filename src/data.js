@@ -163,13 +163,13 @@ export const oldData = {
         { data: { id: 'id7', name: 'Klaus', type: 'person', gender: 'male' } },
         { data: { id: 'id8', name: 'Heinz', type: 'person', gender: 'male' } },
         { data: { id: 'id9', name: 'Jennifer', type: 'person', gender: 'female' } },
-        { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' } },
+        // { data: { id: 'id10', name: 'Lennart', type: 'person', gender: 'male' } },
         { data: { id: 'id11', name: 'Adam', type: 'person', gender: 'male' } },
         { data: { id: 'id12', name: 'Berta', type: 'person', gender: 'female' } },
 
         { data: { id: 'u1', type: 'union' } },
         { data: { id: 'u2', type: 'union' } },
-        { data: { id: 'u3', type: 'union' } },
+        // { data: { id: 'u3', type: 'union' } },
         { data: { id: 'u4', type: 'union', divorced: true } },
         { data: { id: 'u5', type: 'union', divorced: true } },
     ],
@@ -197,7 +197,7 @@ export const oldData = {
         { data: { id: 'u4-id9', source: 'u4', target: 'id9' } },    // Jennifer
 
         // Heinz > Kids: Lennart (Heinz - missing wife)
-        { data: { id: 'id8-u3', source: 'id8', target: 'u3' } },
-        { data: { id: 'u3-id10', source: 'u3', target: 'id10' } },
+        // { data: { id: 'id8-u3', source: 'id8', target: 'u3' } },
+        // { data: { id: 'u3-id10', source: 'u3', target: 'id10' } },
     ]
 }
