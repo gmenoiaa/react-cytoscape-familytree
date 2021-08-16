@@ -66,6 +66,18 @@ function App() {
           }
         }
 
+        // adjust union position to be exactly in the center of partners
+        for (const incomingNode of incomingNodes) {
+          const nodeBoundingBox = incomingNode.boundingBox()
+          const unionPosition = union.position()
+
+          if (nodeBoundingBox.x1 < unionPosition.x && nodeBoundingBox.x2 > unionPosition.x) {
+            const partnerNode = incomingNodes.find(otherNode => otherNode.data().id !== incomingNode.data().id)
+            const isLeft = incomingNode.position().x < partnerNode.position().x
+
+            union.position('x', nodeBoundingBox.x2 + (isLeft ? 25 : -175 ))
+          }
+        }
       }
 
     }
