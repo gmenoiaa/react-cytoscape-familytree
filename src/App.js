@@ -32,6 +32,8 @@ function prepareData(levels = 3) {
   return nodes
 }
 
+const CARD_WIDTH = 150
+
 function App() {
   // const location = useLocation();
   const [cy, setCy] = useState()
@@ -41,9 +43,23 @@ function App() {
     name: 'dagre',
     fit: true,
     zoom: 1,
+    nodeSep: 200,
+    edgeSep: 0,
     ready: event => {
       const elements = event.cy.elements()
       const unions = elements.filter(element => element.data().type === 'union' && element.isNode())
+
+      const nodeUnions = unions.reduce((acc, union) => {
+        const incomingNodes = union.incomers().filter(element => element.isNode() && element.data.target === union.data.id)
+        for (const node of incomingNodes) {
+          const id = node.data().id
+          if (!acc[id]) {
+            acc[id] = []
+          }
+          acc[id].push(union)
+        }
+        return acc
+      }, {})
 
       for (const union of unions) {
         // make the union point at the same y position as the nodes
@@ -57,25 +73,29 @@ function App() {
           // TODO: do we even allow single parents ? or maybe we add support for placeholder nodes for the spouse in this case
         }
 
-        // adjust how far partners are from union node
+        // adjust how far partners are from union node, but only if one partner
         const unionX = union.position('x')
         for (const incomingNode of incomingNodes) {
           const nodeX = incomingNode.position('x')
-          if (Math.abs(nodeX - unionX) > 200) {
-            incomingNode.position('x', unionX + (nodeX > unionX ? 100 : -100))
+
+          if (nodeUnions[incomingNode.data().id].length === 1) {
+            if (Math.abs(nodeX - unionX) > CARD_WIDTH) {
+              incomingNode.position('x', unionX + (layout.nodeSep * (nodeX > unionX ? 1 : -1)))
+            }
           }
         }
 
         // adjust union position to be exactly in the center of partners
         for (const incomingNode of incomingNodes) {
-          const nodeBoundingBox = incomingNode.boundingBox()
+          const incomingNodeBox = incomingNode.boundingBox()
           const unionPosition = union.position()
 
-          if (nodeBoundingBox.x1 < unionPosition.x && nodeBoundingBox.x2 > unionPosition.x) {
+          if (incomingNodeBox.x1 < unionPosition.x && incomingNodeBox.x2 > unionPosition.x) {
             const partnerNode = incomingNodes.find(otherNode => otherNode.data().id !== incomingNode.data().id)
-            const isLeft = incomingNode.position().x < partnerNode.position().x
-
-            union.position('x', nodeBoundingBox.x2 + (isLeft ? 25 : -175 ))
+            const incomingNodeX = incomingNode.position().x
+            const partnerNodeX = partnerNode.position().x
+            const incomingPartnerCenterX = (partnerNodeX - incomingNodeX) / 2
+            union.position('x', incomingNodeX + incomingPartnerCenterX)
           }
         }
       }
@@ -96,7 +116,7 @@ function App() {
         // 'text-valign': 'center',
         // 'text-halign': 'center',
         'shape': 'rectangle',
-        'width': 150,
+        'width': CARD_WIDTH,
         'height': 50,
         'background-color': '#fff',
       }
